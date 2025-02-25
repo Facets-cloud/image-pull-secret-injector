@@ -1,14 +1,23 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: pod-mutator-webhook-server
+  name: webhook-server
   namespace: kube-system
+  labels:
+    app: webhook-server
 spec:
+  selector:
+    matchLabels:
+      app: webhook-server
   template:
+    metadata:
+      labels:
+        app: webhook-server
     spec:
+      serviceAccountName: webhook-server
       containers:
       - name: mutator
-        imagePullPolicy: Always
+        image: vishnukvfacets/image-pull-secrets:1.0.9
         args:
         - --secrets=registry-secret-test-google-container,registry-secret-test-pass-azure
         - --debug=true
@@ -17,11 +26,10 @@ spec:
           name: webhook-server
           protocol: TCP
         volumeMounts:
-        - mountPath: /tmp/k8s-webhook-server/serving-certs
-          name: cert
+        - name: cert
+          mountPath: /tmp/k8s-webhook-server/serving-certs
           readOnly: true
       volumes:
       - name: cert
         secret:
-          defaultMode: 420
           secretName: webhook-server-cert

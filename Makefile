@@ -1,34 +1,29 @@
-IMAGE ?= sapcc/pull-secret-injector
-VERSION:=0.4.1
+SHELL := /bin/bash
 
-manifests: controller-gen
-	$(CONTROLLER_GEN) paths="./..." webhook rbac:roleName=webhook-server
+# Image URL to use all building/pushing image targets
+IMG ?= vishnukvfacets/image-pull-secrets:1.0.9
 
-deploy: 
-	cd config/mutator && kustomize edit set image controller=$(IMAGE):$(VERSION)
-	kustomize build config/default | kubectl apply -f -
-
-uninstall:
-	kustomize build config/default | kubectl delete -f -
-
-# find or download controller-gen
-# download controller-gen if necessary
-controller-gen:
-ifeq (, $(shell which controller-gen))
-	@{ \
-	set -e ;\
-	CONTROLLER_GEN_TMP_DIR=$$(mktemp -d) ;\
-	cd $$CONTROLLER_GEN_TMP_DIR ;\
-	go mod init tmp ;\
-	go get sigs.k8s.io/controller-tools/cmd/controller-gen@v0.4.0 ;\
-	rm -rf $$CONTROLLER_GEN_TMP_DIR ;\
-	}
-CONTROLLER_GEN=$(GOBIN)/controller-gen
+# Get the currently used golang install path (in GOPATH/bin, unless GOBIN is set)
+ifeq (,$(shell go env GOBIN))
+GOBIN=$(shell go env GOPATH)/bin
 else
-CONTROLLER_GEN=$(shell which controller-gen)
+GOBIN=$(shell go env GOBIN)
 endif
 
+.PHONY: all
+all: docker deploy
+
+.PHONY: docker
 docker:
-	docker build -t $(IMAGE):$(VERSION) .
-push:
-	docker push $(IMAGE):$(VERSION)
+	docker buildx build --push --platform linux/amd64 -t ${IMG} -f Dockerfile .
+
+.PHONY: deploy
+deploy:
+	kubectl apply -f config/certmanager/certificate.yaml
+	kubectl apply -f config/rbac/role.yaml
+	kubectl apply -f config/rbac/role_binding.yaml
+	kubectl apply -f config/rbac/service_account.yaml
+	kubectl apply -f config/webhook/deployment.yaml
+	kubectl apply -f config/webhook/service.yaml
+	kubectl apply -f config/webhook/manifests.yaml
+	kubectl apply -f config/default/webhookcainjection_patch.yaml

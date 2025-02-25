@@ -1,47 +1,62 @@
-# Adds namespace to all resources.
-namespace: kube-system
-namePrefix: pod-mutator-
-# Labels to add to all resources and selectors.
-#commonLabels:
-#  someName: someValue
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
 
-bases:
-- ../mutator
+namespace: kube-system
+
+resources:
+- ../rbac
 - ../webhook
 - ../certmanager
-- ../rbac
 
-patchesStrategicMerge:
-- manager_webhook_patch.yaml
-- webhookcainjection_patch.yaml
-# - development.yaml # for development: enable pull policy always
+patches:
+- path: webhookcainjection_patch.yaml
+  target:
+    kind: MutatingWebhookConfiguration
+    name: mutating-webhook-configuration
 
-# the following config is for teaching kustomize how to do var substitution
-vars:
-# [CERTMANAGER] To enable cert-manager, uncomment all sections with 'CERTMANAGER' prefix.
-- name: CERTIFICATE_NAMESPACE # namespace of the certificate CR
-  objref:
+configurations:
+- kustomizeconfig.yaml
+
+images:
+- name: controller
+  newName: vishnukvfacets/image-pull-secrets
+  newTag: 1.0.3
+
+replacements:
+- source:
     kind: Certificate
     group: cert-manager.io
-    version: v1alpha2
-    name: server-cert # this name should match the one in certificate.yaml
-  fieldref:
-    fieldpath: metadata.namespace
-- name: CERTIFICATE_NAME
-  objref:
-    kind: Certificate
-    group: cert-manager.io
-    version: v1alpha2
-    name: server-cert # this name should match the one in certificate.yaml
-- name: SERVICE_NAMESPACE # namespace of the service
-  objref:
+    version: v1
+    name: server-cert
+    fieldPath: metadata.namespace
+  targets:
+  - select:
+      kind: Certificate
+      group: cert-manager.io
+      version: v1
+      name: server-cert
+    fieldPaths:
+    - metadata.namespace
+
+- source:
     kind: Service
     version: v1
     name: webhook-service
-  fieldref:
-    fieldpath: metadata.namespace
-- name: SERVICE_NAME
-  objref:
+    fieldPath: metadata.namespace
+  targets:
+  - select:
+      kind: Service
+      version: v1
+      name: webhook-service
+    fieldPaths:
+    - metadata.namespace
+
+- source:
     kind: Service
     version: v1
     name: webhook-service
+  targets:
+  - select:
+      kind: Service
+      version: v1
+      name: webhook-service

@@ -1,0 +1,21 @@
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingWebhookConfiguration
+metadata:
+  name: pod-mutator-mutating-webhook-configuration
+webhooks:
+- name: mpod.kb.io
+  clientConfig:
+    service:
+      namespace: kube-system
+      name: pod-mutator-webhook-service
+      path: /mutate-v1-pod
+    caBundle: Cg==
+  rules:
+  - apiGroups: [""]
+    apiVersions: ["v1"]
+    operations: ["CREATE"]
+    resources: ["pods"]
+    scope: "*"
+  admissionReviewVersions: ["v1"]
+  sideEffects: None
+  failurePolicy: Ignore

@@ -1,0 +1,7 @@
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: pod-mutator-ca
+  namespace: kube-system
+spec:
+  selfSigned: {}

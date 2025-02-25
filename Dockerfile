@@ -1,4 +1,4 @@
-FROM golang:1.15 as builder
+FROM golang:1.24 as builder
 
 WORKDIR /workspace
 # Copy the Go Modules manifests
@@ -12,11 +12,10 @@ ADD *.go ./
 
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 GO111MODULE=on go build -a -o mutator .
 
-# Use distroless as minimal base image to package the cmplet binary
-# Refer to https://github.com/GoogleContainerTools/distroless for more details
+# Use distroless as minimal base image to package the binary
 FROM gcr.io/distroless/static:nonroot
-LABEL source_repository="https://github.com/sapcc/pull-secrets-injector"
+LABEL source_repository="https://github.com/Facets-cloud/image-pull-secret-injector"
 WORKDIR /
 COPY --from=builder /workspace/mutator .
-USER nonroot:nonroot
+USER 65532:65532
 ENTRYPOINT ["/mutator"]
