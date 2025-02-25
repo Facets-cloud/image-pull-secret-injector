@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: excluded-nginx
+  annotations:
+    image-pull-secret-injector.facets.cloud/exclude: "true"
+spec:
+  containers:
+  - name: nginx
+    image: nginx:latest

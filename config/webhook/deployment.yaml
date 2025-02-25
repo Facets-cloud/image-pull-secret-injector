@@ -17,7 +17,7 @@ spec:
       serviceAccountName: webhook-server
       containers:
       - name: mutator
-        image: vishnukvfacets/image-pull-secrets:1.0.9
+        image: vishnukvfacets/image-pull-secrets:1.0.10
         args:
         - --secrets=registry-secret-test-google-container,registry-secret-test-pass-azure
         - --debug=true

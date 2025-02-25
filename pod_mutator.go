@@ -11,6 +11,10 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/webhook/admission"
 )
 
+const (
+	ExcludeAnnotation = "image-pull-secret-injector.facets.cloud/exclude"
+)
+
 type podMutator struct {
 	Log         logr.Logger
 	Client      client.Client
@@ -42,6 +46,14 @@ func (a *podMutator) Handle(ctx context.Context, req admission.Request) admissio
 	}
 	if name == "" {
 		name = pod.GenerateName + "[SERVER GENERATED]"
+	}
+
+	// Check if pod should be excluded from mutation
+	if pod.Annotations != nil {
+		if exclude, ok := pod.Annotations[ExcludeAnnotation]; ok && exclude == "true" {
+			a.Log.Info("pod excluded from mutation via annotation", "namespace", req.Namespace, "name", name)
+			return admission.Allowed("pod excluded from mutation via annotation")
+		}
 	}
 
 	a.Log.Info("processing pod", "namespace", req.Namespace, "name", name, "configured_secrets", a.SecretNames)

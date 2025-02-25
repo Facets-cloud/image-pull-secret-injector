@@ -1,7 +1,7 @@
 SHELL := /bin/bash
 
 # Image URL to use all building/pushing image targets
-IMG ?= vishnukvfacets/image-pull-secrets:1.0.9
+IMG ?= vishnukvfacets/image-pull-secrets:1.0.10
 
 # Get the currently used golang install path (in GOPATH/bin, unless GOBIN is set)
 ifeq (,$(shell go env GOBIN))
