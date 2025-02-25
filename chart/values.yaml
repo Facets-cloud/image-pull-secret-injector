@@ -5,12 +5,10 @@
 replicaCount: 3
 
 image:
-  repository: sapcc/pull-secret-injector
+  repository: vishnukvfacets/image-pull-secrets
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "0.4.1"
-
-imagePullSecret:
+  tag: "1.0.10"
 
 serviceAccount:
   # Specifies whether a service account should be created
@@ -34,15 +32,32 @@ securityContext: {}
   # runAsNonRoot: true
   # runAsUser: 1000
 
+secretList: "registry-secret-test-google-container,registry-secret-test-pass-azure"
+
+debug: false
+
+nameOverride: "image-pull-secret-injector"
+fullnameOverride: "image-pull-secret-injector"
+
 service:
   type: ClusterIP
   port: 443
+  targetPort: 9443
+  metrics:
+    port: 8080
+  health:
+    port: 8081
 
 resources:
-   limits:
-     cpu: 100m
-     memory: 128Mi
-   requests:
-     cpu: 100m
-     memory: 128Mi
+  limits:
+    cpu: 1000m
+    memory: 1000Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
 
+leaderElection:
+  enabled: true
+  leaseDuration: "15s"
+  renewDeadline: "10s"
+  retryPeriod: "2s"

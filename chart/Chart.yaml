@@ -1,6 +1,6 @@
 apiVersion: v2
-name: pull-secret-injector
-description: A Helm chart for Kubernetes
+name: image-pull-secret-injector
+description: Mutates pods to inject image pull secrets for private registries
 
 # A chart can be either an 'application' or a 'library' chart.
 #

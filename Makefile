@@ -18,6 +18,7 @@ docker:
 	docker buildx build --push --platform linux/amd64 -t ${IMG} -f Dockerfile .
 
 .PHONY: deploy
+
 deploy:
 	kubectl apply -f config/certmanager/certificate.yaml
 	kubectl apply -f config/rbac/role.yaml
@@ -27,3 +28,13 @@ deploy:
 	kubectl apply -f config/webhook/service.yaml
 	kubectl apply -f config/webhook/manifests.yaml
 	kubectl apply -f config/default/webhookcainjection_patch.yaml
+
+clean:
+	kubectl delete -f config/certmanager/certificate.yaml
+	kubectl delete -f config/rbac/role.yaml
+	kubectl delete -f config/rbac/role_binding.yaml
+	kubectl delete -f config/rbac/service_account.yaml
+	kubectl delete -f config/webhook/deployment.yaml
+	kubectl delete -f config/webhook/service.yaml
+	kubectl delete -f config/webhook/manifests.yaml
+	kubectl delete -f config/default/webhookcainjection_patch.yaml

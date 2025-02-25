@@ -1,4 +1,4 @@
-apiVersion: admissionregistration.k8s.io/v1beta1
+apiVersion: admissionregistration.k8s.io/v1
 kind: MutatingWebhookConfiguration
 metadata:
   annotations:
@@ -7,13 +7,17 @@ metadata:
   labels:
     {{- include "chart.labels" . | nindent 4 }}
 webhooks:
-- clientConfig:
-    caBundle: Cg==
+- admissionReviewVersions:
+  - v1
+  clientConfig:
     service:
       name: {{ include "chart.fullname" . }}
       namespace: {{ .Release.Namespace }}
       path: /mutate-v1-pod
   failurePolicy: Ignore
+  sideEffects: None
+  timeoutSeconds: 30
+  namespaceSelector: {}
   name: mpod.kb.io
   rules:
   - apiGroups:
@@ -24,3 +28,13 @@ webhooks:
     - CREATE
     resources:
     - pods
+    scope: "*"
+  - apiGroups:
+    - ""
+    apiVersions:
+    - v1
+    operations:
+    - UPDATE
+    resources:
+    - pods
+    scope: "*"

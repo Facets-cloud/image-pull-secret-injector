@@ -32,7 +32,7 @@ func main() {
 	}
 	ctrl.SetLogger(zap.New(zap.UseFlagOptions(&opts)))
 
-	var logger = log.Log.WithName("pull-secrets-injector")
+	var logger = log.Log.WithName("image-pull-secrets-injector")
 
 	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
 		WebhookServer: webhook.NewServer(webhook.Options{
