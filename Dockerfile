@@ -10,7 +10,7 @@ RUN go mod download
 
 ADD *.go ./
 
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 GO111MODULE=on go build -a -o mutator .
+RUN CGO_ENABLED=0 GOOS=linux GO111MODULE=on go build -a -o mutator .
 
 # Use distroless as minimal base image to package the binary
 FROM gcr.io/distroless/static:nonroot
